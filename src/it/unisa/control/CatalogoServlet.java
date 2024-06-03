@@ -17,76 +17,92 @@ import it.unisa.model.ProdottoDao;
 
 @WebServlet("/catalogo")
 public class CatalogoServlet extends HttpServlet {
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	protected void doGet(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
 
-		ProdottoDao prodDao = new ProdottoDao();
-		ProdottoBean bean = new ProdottoBean();
-		String sort = request.getParameter("sort");
-		String action = request.getParameter("action");
-		String redirectedPage = request.getParameter("page");;
-	
-		try {
-			if(action!=null) {
-				if(action.equalsIgnoreCase("add")) {
-					bean.setNome(request.getParameter("nome"));
-					bean.setDescrizione(request.getParameter("descrizione"));
-					bean.setIva(request.getParameter("iva"));
-					bean.setPrezzo(Double.parseDouble(request.getParameter("prezzo")));
-					bean.setQuantità(Integer.parseInt(request.getParameter("quantit�")));
-					bean.setPiattaforma(request.getParameter("piattaforma"));
-					bean.setGenere(request.getParameter("genere"));
-					bean.setImmagine(request.getParameter("img"));
-					bean.setDataUscita(request.getParameter("dataUscita"));
-					bean.setDescrizioneDettagliata(request.getParameter("descDett"));
-					bean.setInVendita(true);
-					prodDao.doSave(bean);
-				}
-				
-				else if(action.equalsIgnoreCase("modifica")) {
-					
-					bean.setIdProdotto(Integer.parseInt(request.getParameter("id")));
-					bean.setNome(request.getParameter("nome"));
-					bean.setDescrizione(request.getParameter("descrizione"));
-					bean.setIva(request.getParameter("iva"));
-					bean.setPrezzo(Double.parseDouble(request.getParameter("prezzo")));
-					bean.setQuantità(Integer.parseInt(request.getParameter("quantit�")));
-					bean.setPiattaforma(request.getParameter("piattaforma"));
-					bean.setGenere(request.getParameter("genere"));
-					bean.setImmagine(request.getParameter("img"));
-					bean.setDataUscita(request.getParameter("dataUscita"));
-					bean.setDescrizioneDettagliata(request.getParameter("descDett"));
-					bean.setInVendita(true);
-					prodDao.doUpdate(bean);	
-				}
+        ProdottoDao prodDao = new ProdottoDao();
+        ProdottoBean bean = new ProdottoBean();
+        String sort = request.getParameter("sort");
+        String action = request.getParameter("action");
+        String redirectedPage = request.getParameter("page");
 
-				request.getSession().removeAttribute("categorie");
+        try {
+            if (action != null) {
+                if (action.equalsIgnoreCase("add")) {
+                    bean.setNome(request.getParameter("nome"));
+                    bean.setDescrizione(request.getParameter("descrizione"));
+                    bean.setIva(request.getParameter("iva"));
+                    bean.setPrezzo(Double.parseDouble(request.getParameter("prezzo")));
 
-			}
-			
-		} catch (SQLException e) {
-			System.out.println("Error:" + e.getMessage());
-		}
+                    // Gestione della quantità
+                    String quantitaStr = request.getParameter("quantità");
+                    if (quantitaStr != null && !quantitaStr.isEmpty()) {
+                        bean.setQuantità(Integer.parseInt(quantitaStr));
+                    } else {
+                        // Se il campo quantità è vuoto, impostiamo la quantità a 0
+                        bean.setQuantità(0);
+                    }
+
+                    bean.setPiattaforma(request.getParameter("piattaforma"));
+                    bean.setGenere(request.getParameter("genere"));
+                    bean.setImmagine(request.getParameter("img"));
+                    bean.setDataUscita(request.getParameter("dataUscita"));
+                    bean.setDescrizioneDettagliata(request.getParameter("descDett"));
+                    bean.setInVendita(true);
+                    prodDao.doSave(bean);
+                }
+
+                else if (action.equalsIgnoreCase("modifica")) {
+
+                    bean.setIdProdotto(Integer.parseInt(request.getParameter("id")));
+                    bean.setNome(request.getParameter("nome"));
+                    bean.setDescrizione(request.getParameter("descrizione"));
+                    bean.setIva(request.getParameter("iva"));
+                    bean.setPrezzo(Double.parseDouble(request.getParameter("prezzo")));
+
+                    // Gestione della quantità
+                    String quantitaStr = request.getParameter("quantità");
+                    if (quantitaStr != null && !quantitaStr.isEmpty()) {
+                        bean.setQuantità(Integer.parseInt(quantitaStr));
+                    } else {
+                        // Se il campo quantità è vuoto, impostiamo la quantità a 0
+                        bean.setQuantità(0);
+                    }
+
+                    bean.setPiattaforma(request.getParameter("piattaforma"));
+                    bean.setGenere(request.getParameter("genere"));
+                    bean.setImmagine(request.getParameter("img"));
+                    bean.setDataUscita(request.getParameter("dataUscita"));
+                    bean.setDescrizioneDettagliata(request.getParameter("descDett"));
+                    bean.setInVendita(true);
+                    prodDao.doUpdate(bean);    
+                }
+
+                request.getSession().removeAttribute("categorie");
+
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Error:" + e.getMessage());
+        }
 
 
-		try {
-			request.getSession().removeAttribute("products");
-			request.getSession().setAttribute("products", prodDao.doRetrieveAll(sort));
-		} catch (SQLException e) {
-			System.out.println("Error:" + e.getMessage());
-		}
-		
-			
-			response.sendRedirect(request.getContextPath() + "/" +redirectedPage);
-		
-		
-	}
+        try {
+            request.getSession().removeAttribute("products");
+            request.getSession().setAttribute("products", prodDao.doRetrieveAll(sort));
+        } catch (SQLException e) {
+            System.out.println("Error:" + e.getMessage());
+        }
 
-	protected void doPost(HttpServletRequest request, HttpServletResponse response)
-			throws ServletException, IOException {
-		doGet(request, response);
-	}
+        response.sendRedirect(request.getContextPath() + "/" + redirectedPage);
+
+    }
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        doGet(request, response);
+    }
 
 }
